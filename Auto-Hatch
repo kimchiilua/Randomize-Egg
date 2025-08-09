@@ -1,4 +1,4 @@
--- 🌟 YOSHIKURO SCRIPT - Visual Pet Hatch Simulator with Drag, ESP, Auto Random, Pet Age Loader
+-- 🐾 PET RANDOMIZER Script (Made by - Yoshikuro)
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
@@ -7,14 +7,14 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 
--- 🐾 Updated Pet Table (Up to Zen Egg - corrected)
+-- 📦 Pet Table (Updated)
 local petTable = {
     ["Common Egg"] = { "Dog", "Bunny", "Golden Lab" },
     ["Uncommon Egg"] = { "Chicken", "Black Bunny", "Cat", "Deer" },
     ["Rare Egg"] = { "Pig", "Monkey", "Rooster", "Orange Tabby", "Spotted Deer" },
     ["Legendary Egg"] = { "Cow", "Polar Bear", "Sea Otter", "Turtle", "Silver Monkey" },
     ["Mythical Egg"] = { "Grey Mouse", "Brown Mouse", "Squirrel", "Red Giant Ant" },
-    ["Bug Egg"] = { "Snail", "Caterpillar", "Giant Ant", "Praying Mantis" },
+    ["Bug Egg"] = { "Snail", "Dragonfly" },
     ["Night Egg"] = { "Frog", "Hedgehog", "Mole", "Echo Frog", "Night Owl" },
     ["Bee Egg"] = { "Bee", "Honey Bee", "Bear Bee", "Petal Bee" },
     ["Anti Bee Egg"] = { "Wasp", "Moth", "Tarantula Hawk" },
@@ -22,13 +22,14 @@ local petTable = {
     ["Paradise Egg"] = { "Ostrich", "Peacock", "Capybara" },
     ["Dinosaur Egg"] = { "Raptor", "Triceratops", "Stegosaurus" },
     ["Primal Egg"] = { "Parasaurolophus", "Iguanodon", "Pachycephalosaurus" },
-    ["Burrow Egg"] = { "Ferret", "Groundhog", "Chipmunk" },
-    ["Zen Egg"] = { "Shiba Inu", "Nihonzaru", "Tanuki", "Tanchozuru", "Kappa", "Kitsune" }
+    ["Burrow Egg"] = { "Ferret", "Prairie Dog" },
+    ["Zen Egg"] = { "Kitsune", "Nihonzaru" },
 }
 
 local espEnabled = true
 local truePetMap = {}
 
+-- 🔴 Glitch Label Effect
 local function glitchLabelEffect(label)
     coroutine.wrap(function()
         local original = label.TextColor3
@@ -41,6 +42,7 @@ local function glitchLabelEffect(label)
     end)()
 end
 
+-- 👁️ Apply ESP
 local function applyEggESP(eggModel, petName)
     local existingLabel = eggModel:FindFirstChild("PetBillboard", true)
     if existingLabel then existingLabel:Destroy() end
@@ -112,32 +114,14 @@ local function getPlayerGardenEggs(radius)
 
     for _, obj in pairs(Workspace:GetDescendants()) do
         if obj:IsA("Model") and petTable[obj.Name] then
-            local success, modelCFrame = pcall(function() return obj:GetModelCFrame() end)
-            if not success then
-                -- fallback: attempt to use PrimaryPart position
-                local pos = nil
-                if obj.PrimaryPart then pos = obj.PrimaryPart.Position end
-                if pos then
-                    local dist = (pos - root.Position).Magnitude
-                    if dist <= (radius or 60) then
-                        if not truePetMap[obj] then
-                            local pets = petTable[obj.Name]
-                            local chosen = pets[math.random(1, #pets)]
-                            truePetMap[obj] = chosen
-                        end
-                        table.insert(eggs, obj)
-                    end
+            local dist = (obj:GetModelCFrame().Position - root.Position).Magnitude
+            if dist <= (radius or 60) then
+                if not truePetMap[obj] then
+                    local pets = petTable[obj.Name]
+                    local chosen = pets[math.random(1, #pets)]
+                    truePetMap[obj] = chosen
                 end
-            else
-                local dist = (modelCFrame.Position - root.Position).Magnitude
-                if dist <= (radius or 60) then
-                    if not truePetMap[obj] then
-                        local pets = petTable[obj.Name]
-                        local chosen = pets[math.random(1, #pets)]
-                        truePetMap[obj] = chosen
-                    end
-                    table.insert(eggs, obj)
-                end
+                table.insert(eggs, obj)
             end
         end
     end
@@ -175,9 +159,9 @@ local function countdownAndRandomize(button)
     button.Text = "🎲 Randomize Pets"
 end
 
--- 🌿 GUI Setup
+-- 🌿 GUI Setup (Gradient Hub)
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-screenGui.Name = "YOSHIKURO SCRIPT"
+screenGui.Name = "PetHatchGui"
 
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 260, 0, 240)
@@ -187,13 +171,32 @@ frame.BorderSizePixel = 0
 frame.Parent = screenGui
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
 
+-- Gradient background
+local gradient = Instance.new("UIGradient", frame)
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 170, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 0, 255))
+}
+gradient.Rotation = 45
+
+-- Title
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
-title.Text = "🐾 YOSHIKURO SCRIPT ✨"
+title.Text = "🐾 PET RANDOMIZER"
 title.Font = Enum.Font.FredokaOne
 title.TextSize = 22
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- Subtitle
+local subtitle = Instance.new("TextLabel", frame)
+subtitle.Size = UDim2.new(1, 0, 0, 20)
+subtitle.Position = UDim2.new(0, 0, 0, 28)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "Made by - Yoshikuro"
+subtitle.Font = Enum.Font.FredokaOne
+subtitle.TextSize = 14
+subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
 
 -- 👇 Dragging
 local drag = Instance.new("TextButton", title)
@@ -218,7 +221,7 @@ end)
 -- 🎲 Randomize Button
 local randomizeBtn = Instance.new("TextButton", frame)
 randomizeBtn.Size = UDim2.new(1, -20, 0, 50)
-randomizeBtn.Position = UDim2.new(0, 10, 0, 40)
+randomizeBtn.Position = UDim2.new(0, 10, 0, 60)
 randomizeBtn.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
 randomizeBtn.Text = "🎲 Randomize Pets"
 randomizeBtn.TextSize = 20
@@ -231,7 +234,7 @@ end)
 -- 👁️ ESP Toggle
 local toggleBtn = Instance.new("TextButton", frame)
 toggleBtn.Size = UDim2.new(1, -20, 0, 40)
-toggleBtn.Position = UDim2.new(0, 10, 0, 100)
+toggleBtn.Position = UDim2.new(0, 10, 0, 115)
 toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 toggleBtn.Text = "👁️ ESP: ON"
 toggleBtn.TextSize = 18
@@ -257,7 +260,7 @@ end
 -- 🔁 Auto Randomize Button
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Size = UDim2.new(1, -20, 0, 30)
-autoBtn.Position = UDim2.new(0, 10, 0, 145)
+autoBtn.Position = UDim2.new(0, 10, 0, 160)
 autoBtn.BackgroundColor3 = Color3.fromRGB(80, 150, 60)
 autoBtn.Text = "🔁 Auto Randomize: OFF"
 autoBtn.TextSize = 16
@@ -265,25 +268,12 @@ autoBtn.Font = Enum.Font.FredokaOne
 autoBtn.TextColor3 = Color3.new(1, 1, 1)
 
 local autoRunning = false
-local bestPets = {
-    ["Raccoon"] = true, ["Dragonfly"] = true, ["Queen Bee"] = true,
-    ["Disco Bee"] = true, ["Fennec Fox"] = true, ["Fox"] = true,
-    ["Mimic Octopus"] = true
-}
-
 autoBtn.MouseButton1Click:Connect(function()
     autoRunning = not autoRunning
     autoBtn.Text = autoRunning and "🔁 Auto Randomize: ON" or "🔁 Auto Randomize: OFF"
     coroutine.wrap(function()
         while autoRunning do
             countdownAndRandomize(randomizeBtn)
-            for _, petName in pairs(truePetMap) do
-                if bestPets[petName] then
-                    autoRunning = false
-                    autoBtn.Text = "🔁 Auto Randomize: OFF"
-                    return
-                end
-            end
             wait(1)
         end
     end)()
@@ -298,7 +288,6 @@ loadAgeBtn.Text = "🕒 Load Pet Age 50 Script"
 loadAgeBtn.TextSize = 16
 loadAgeBtn.Font = Enum.Font.FredokaOne
 loadAgeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-
 loadAgeBtn.MouseButton1Click:Connect(function()
-  loadstring(game:HttpGet("https://raw.githubusercontent.com/Kimchiiizz/Pet-Spawner-V2/refs/heads/main/Grow-a-Garden%20Dupe%20Pet"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kimchiiizz/Pet-Spawner-V2/refs/heads/main/Grow-a-Garden%20Dupe%20Pet"))()
 end)
